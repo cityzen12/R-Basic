@@ -1,0 +1,120 @@
+---
+title: "第九章-作业"
+author: "朱子灏 2019193014"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## 练习题
+
+1. 读取数据`Credit.csv`。读取后数据变量的名称为`credit`。
+```{r}
+credit=read.csv("D:/学习/大二上/R语言/第九章作业/Credit.csv")
+```
+- 从数据`credit`中删除第一列
+```{r}
+credit=credit[,2:ncol(credit)]
+```
+- 数据`credit`中，`Income`的最大值和最小值分别为多少？
+```{r}
+IncomeMax=max(credit[,1])
+IncomeMin=min(credit[,1])
+
+IncomeMax
+IncomeMin
+```
+- 从数据`credit`中删除`Rating`小于200对应的行。删除后，数据`credit`大约为332行。
+```{r}
+credit=credit[credit$Rating>=200,]
+```
+
+- 把数据`credit`中位置为`(5,2)`的数字改为问号`?`。
+```{r}
+credit[5,2]="?"
+```
+
+- 把数据保存到当前工作目录的文件夹`data`中，保存的文件名为`Credit_Rating200.csv`。在保存的excel文件中，请不要包含数据的索引，即excel文件的第一列为`Income`。如需帮助，请查看函数`write.csv()`的帮助文档。请打开excel文件`Credit_Rating200.csv`确保你的操作是正确的。
+```{r}
+write.csv(credit,"D:/学习/大二上/R语言/第九章作业/data/Credit_Rating200.csv",row.names=FALSE)
+```
+
+- 从到当前工作目录的文件夹`data`中读取数据`Credit_Rating200.csv`,保存到变量`credit2`中。
+```{r}
+credit2=read.csv("D:/学习/大二上/R语言/第九章作业/data/Credit_Rating200.csv")
+```
+- 使用函数`head()`查看前6行，观察位置`(5,2)`的数据是什么?
+```{r}
+onetosix=head(credit[1:6,])
+onetosix[5,2]
+onetosix
+```
+
+- 删除数据`credit2`中包含缺失值的行。确定这时候数据`credit2`的第二行`Limit`为数值型。
+```{r}
+credit2$Limit=as.numeric(as.character(credit2$Limit))
+credit2=credit2[complete.cases(credit2),]
+class(credit2$Limit)
+```
+    
+2. 读入文件`heart.pdf`，并做处理。处理之后，
+
+- 数据应该为一个数据框，不包含NA
+- 列`Age`, `RestBP`，`Chol`变为数值型的数据，其余列变为因子型数据
+- 列名为"Age"， "Sex" ，"ChestPain"，"RestBP"    "Chol"，"Fbs"，"RestECG"，"Thal"，"AHD"
+- 数据框为301行，9列
+- 最后请用函数`summary()`和`dim()`查看你的结果是否正确
+```{r}
+library(pdftools)
+library(stringr)
+library(tidyr)
+library(tibble)
+library(plyr)
+library(dplyr)
+```
+
+```{r}
+heart=pdf_text("D:/学习/大二上/R语言/第九章作业/heart.pdf")%>%
+  readr::read_lines()
+stat1=heart[1:length(heart)]
+stat_all=stat1[1:length(heart)]%>%
+  str_squish()%>%
+  strsplit(split=" ")#格式化操作 全部成为单个元素组成的列表组成的列表
+
+colsnames=stat_all[1]%>%
+  unlist()#列名确认
+
+stat=stat_all[2:length(heart)]
+finder=c()
+for(i in 1:length(stat)){
+  if(lengths(stat[i])!=length(colsnames)){
+    finder[i]=0
+  }
+  else
+    finder[i]=TRUE
+}
+find=which(finder==0)
+stat[find]=NULL#去除0行
+
+answerframe=plyr::ldply(stat)
+colnames(answerframe)=colsnames#写入数据框 命名列
+
+num=c(1,4,5)
+fac=c(2,3,6,7,8,9)
+for(i in num)
+{
+  answerframe[,i]=as.numeric(answerframe[,i])
+}
+for(k in fac)
+{
+  answerframe[,k]=as.factor(answerframe[,k])
+}#更改数据类型
+
+findNA=which(answerframe[,8]=="NA")
+answerframe=answerframe[-findNA,]#寻找字符NA（非R中的缺省值）并删除之
+
+summary(answerframe)
+dim(answerframe)
+```

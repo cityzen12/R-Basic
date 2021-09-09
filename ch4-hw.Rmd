@@ -1,0 +1,156 @@
+---
+title: "第四章-作业"
+author: "朱子灏-2019193014"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## 练习题
+
+1. 创建一个列表，列表包含如下信息(注：如果不能使用中文字符，同学们可以使用拼音或者英文。)：
+
+- 你的名字
+- 你的性别
+- 年龄
+- 你最喜欢的3部电影
+- 你为什么选择这门课？
+    
+```{r}
+ls1 = list(name='ZHU,Zihao',gender='Male',age=18,favorite_movie=c('Intestellar','Ranging Earth','The Spider Man'),why_you_choose='Its my major')
+ls1
+```
+
+然后完成以下操作：
+
+- 使用两个中括号访问你的名字
+```{r}
+ls1[['name']]
+```
+    
+- 使用符号`$`访问你的名字
+```{r}
+ls1$name
+```
+
+- 使用位置访问你最喜欢的3部电影
+```{r}
+ls1[[4]]
+```
+    
+- 提取子列表，包括你的名字和你最喜欢的3部电影
+```{r}
+ls1[c(1,4)]
+```
+    
+    
+2. 创建一个列表，列表包含你最喜欢的人的信息(可以杜撰)如下信息：
+
+- 他/她的名字
+- 他/她的年龄
+- 他/她最喜欢的3部电影
+- 他/她为什么希望你学好这门课？
+
+```{r}
+ls2 = list(name='Mio',gender='Female',age=23,favorite_movie='DoctorX',why_you_choose='NA')
+ls2
+```
+
+然后完成以下操作：
+
+- 创建一个列表`ls3`，该列表的元素有2个元素，一个是包含你的信息的列表，一个是包含你最喜欢的人的信息的列表。
+```{r}
+ls3 = list(ls1,ls2)
+ls3
+```
+- 在列表`ls3`中，访问你最喜欢的3部电影
+```{r}
+ls3[[1]][4]
+```
+  
+- 在列表`ls3`中，把你的性别设置为NA
+```{r}
+ls3[[1]][2]=NA
+ls3
+```
+    
+- 在列表`ls3`中，删除最喜欢的人的年龄
+```{r}
+ls3[[2]][3]=NULL
+ls3
+```
+    
+    
+3. 给定一个文本，找出每个单词出现的位置。例如，如果你的文本如下
+
+     `x = "the here means that the first item "`
+
+   那么单词`the`的位置是`1,5`，`here`的位置是`2`。
+
+- 请使用列表记录`x`单词的位置。列表的标签是单词，标签对应的元素是标签在文本中的位置。
+```{r}
+x=c('the here means that the first item')
+x1=strsplit(x,' ')
+x2=unlist(x1)
+lsa=list('the'=which(x2=='the'),'here'=which(x2=='here'),'means'=which(x2=='means'),'that'=which(x2=='that'),'first'=which(x2=='first'),'item'=which(x2=='item'))
+lsa
+```
+- 使用矩阵存储每个单词的位置。矩阵的行数为出现过单词的数量，矩阵的列数为文本长度。矩阵的每一列对应单词的位置，单词出现的位置记为1，不出现的位置记为0。例如，上面`x`对应的矩阵的行数为6，列数为7, 且矩阵的第一行表示`the`的位置，为`c(1, 0, 0, 0, 1, 0, 0)`，矩阵的第二行表示`here`的位置，为`c(0, 1, 0, 0, 0, 0, 0)`
+```{r}
+x3=names(lsa)
+y=matrix(nrow=length(x3),ncol=length(x2))
+rownames(y)=x3
+colnames(y)=x2
+for(r in 1:length(x3)){
+  for(c in 1:length(x2)){
+    y[r,c]=ifelse(x3[r]==x2[c],1,0)
+  }
+}
+y
+```
+  
+
+4. 接着第3题，现在我们的文本比较长。下面的句子中，我们已经把非字母字符(包括标点)提出，并把大写字母替换为小写，所以字符串`x`的句子读起来比较奇怪。我们的任务是对于下面文本，找出每个单词出现的位置。
+```{r}
+x = "the here means that the first item in this line of output is item in this case our output consists of only one line and one item so this is redundant but this notation helps to read voluminous output that consists of many items spread over many lines for example if there were two rows of output with six items per row the second row would be labeled"
+```
+
+- 使用列表存储每个单词的位置。如第3题的第1小问，列表的标签是单词，标签对应的元素是标签在文本中的位置。创建好改列表后，请输出列表的长度，以及列表的前5个元素。
+```{r}
+x=c("the here means that the first item in this line of output is item in this case our output consists of only one line and one item so this is redundant but this notation helps to read voluminous output that consists of many items spread over many lines for example if there were two rows of output with six items per row the second row would be labeled")
+x1=strsplit(x,' ')
+x2=unlist(x1)
+
+lsb=list()
+
+for(i in 1:length(x2)){
+  x3=x2[i]
+  lsb[[x3]]=c(lsb[[x3]],i)
+}
+
+
+length(lsb)
+lsb[1:5]
+```
+
+- 使用矩阵存储每个单词的位置。矩阵的行数为出现过单词的数量，矩阵的列数为文本长度。如，第3题的第2小问。创建好改矩阵后，请输出矩阵的前5行，前5列。
+```{r}
+x3=names(lsb)
+y=matrix(nrow=length(x3),ncol=length(x2))
+rownames(y)=x3
+colnames(y)=x2
+for(r in 1:length(x3)){
+  for(c in 1:length(x2)){
+    y[r,c]=ifelse(x3[r]==x2[c],1,0)
+  }
+}
+
+y[1:5,1:5]
+```
+    
+注：第3,4题可能需要使用函数`strsplit()`把字符串变成一个列表或者向量，例如，`strsplit(x, split=" ")`
+    
+
+

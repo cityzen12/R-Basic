@@ -1,0 +1,91 @@
+---
+title: "第十章-作业"
+author: "朱子灏2019193014"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## 练习题
+
+1. 读入数据`Credit.csv`。
+```{r}
+credit=read.csv("D:/学习/大二上/R语言/第十章作业/Credit.csv")
+```
+数据包含如下变量：
+
+- balance: average credit card debt for a number of individuals
+- cards: number of credit cards
+- education: years of education
+- income (in thousands of dollars)
+- limit (credit limit)
+- rating (credit rating)
+- Married (marital status)
+- ethnicity (Caucasian, African American or Asian)
+- gender
+- student (student status)
+- age
+
+2. 以`Rating`为横轴，`Balance`为纵轴画散点图，横轴坐标名称为`Rating`，纵轴坐标名称为`Balance`。点的类型为`+`。
+
+```{r fig.retina=5, fig.align='center', fig.height=5, fig.width=7}
+Rating=credit$Rating
+Balance=credit$Balance
+plot(Rating,Balance,pch=10,lwd=1)
+```
+
+3. 画出`Balance`的直方图，设置参数`freq=F`。并且画出`Balance`的概率密度函数。注：可能需要用到函数`density()`。
+
+```{r fig.retina=5, fig.align='center', fig.height=5, fig.width=7}
+hist(Balance,freq=FALSE)
+density=density(Balance)
+plot(density)
+```
+
+
+4. 画出学生的`Balance`的箱型图和非学生的`Balance`的箱型图。两个箱型图分别用两种不同的颜色表示。
+
+```{r fig.retina=5, fig.align='center', fig.height=5, fig.width=7}
+Balance_Student=Balance[credit$Student=='Yes']
+Balance_No_Student=Balance[credit$Student=='No']
+boxplot(Balance_Student,Balance_No_Student,col=c('blue','red'))
+```
+
+5. 深圳小汽车个人指标竞价分析。
+
+- 从网址`http://www.szgjcx.com/szjj`中下载数据
+- 查看深圳小汽车个人指标竞价规则
+- 清洗数据
+- 数据可视化探索数据
+- 建立回归模型分析数据
+
+```{r}
+library(xlsx)
+auction=read.xlsx('D:/学习/大二上/R语言/第十章作业/auction.xlsx',1)
+```
+
+先观察每一年的12期竞价，横坐标为年份，纵轴上的点的分布，为当年的平均报价高低
+观察到的是，2017年的整体均价保持在一个较高的水平
+
+
+```{r}
+plot(auction$Time,auction$Final.Average)
+```
+
+
+
+建立拟合曲线，可以发现近年来的底价有所回落
+```{r}
+y=auction$Lowest
+plot(y)
+lines(lowess(y))
+```
+
+
+
+
+
+
+

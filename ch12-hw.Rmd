@@ -1,0 +1,134 @@
+---
+title: "第十二章-作业"
+author: "朱子灏2019193014"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+1. 考虑如下的概率问题。下面的代码提供了一种解决方案。
+
+从20个人中选出人数分别为3,4,5的三个委员会。A和B被选入同一个委员会的概率为多大？
+
+解决方案：把潜在的委员会成员编号为1,2,...,20，其中A和B的编号分别为1和2.
+
+- 首先，从20个人中选择5人组成一个委员会；
+- 然后，从剩下的15个人中选择4人组成一个委员会；
+- 最后，从剩下的11个人中选择3人组成一个委员会。
+
+在这个过程中，我们使用列表`comdat`记录相关信息，包括如下组件：
+
+- `comdat$whosleft`: 没有被选中到委员会中的成员编号。
+- `comdat$numabchosen`：到目前为止A和B被选中的人数。如果选出一个委员会，发现这个变量为正， 则可以基于下面的理由跳过选择剩下的委员会：
+
+    - 如果它是2，那么A和B肯定在同一个委员会中；
+    - 如果它是1，那么A和B肯定不在同一个委员会中。
+- `comdat$countabsamecomm`:A和B出现在同一个委员会中的次数。
+
+请编写代码尝试提高模拟的计算效率？Hint: 可以尝试你知道的任何方法，包括向量化运算，内存分配，并行运算，以及改变解决方案流程。
+
+```{r}
+choosecomm = function(comdat, comsize){
+  committee = sample(comdat$whosleft, comsize)
+  comdat$numabchosen = length(intersect(1:2, committee))
+  if(comdat$numabchosen == 2)
+    comdat$countabsamecomm = comdat$countabsamecomm + 1
+  comdat$whosleft = setdiff(comdat$whosleft, committee)
+  return(comdat)
+}
+
+
+sim = function(nreps){
+  commdata = list()
+  commdata$countabsamecomm = 0
+  for(rep in 1:nreps){
+    commdata$whosleft = 1:20
+    commdata$numabchosen = 0
+    commdata = choosecomm(commdata, 5)
+    if(commdata$numabchosen > 0)next
+    commdata = choosecomm(commdata, 4)
+    if(commdata$numabchosen > 0)next
+    commdata = choosecomm(commdata, 3)
+  }
+  print(commdata$countabsamecomm/nreps)
+}
+
+system.time({sim(1e6)})
+
+```
+```{r}
+sim_new = function(){
+  
+  M=replicate(1e6,sample(1:20,12))
+  N=t(M)
+  
+  choose3=N[which(N[,1:3]==1)%%1e6,1:3]
+  choose4=N[which(N[,4:7]==1)%%1e6,4:7]
+  choose5=N[which(N[,8:12]==1)%%1e6,8:12]
+  
+  match3=length(which(choose3==2))
+  match4=length(which(choose4==2))
+  match5=length(which(choose5==2))
+  
+  countall=match3+match4+match5
+  
+  probability=countall/1e6
+  
+  print(probability)
+}
+
+system.time({sim_new()})
+```
+
+
+2. 下面我们分别从均匀分布，正态分布，泊松分布，卡方分布中产生'N'个随机数，并把这4列随机数合并为一个数据框。
+```{r}
+N = 5e4
+col1 <- runif (N, 0, 2)
+col2 <- rnorm (N, 0, 2)
+col3 <- rpois (N, 3)
+col4 <- rchisq (N, 2)
+df <- data.frame (col1, col2, col3, col4)
+```
+
+我们的任务是根据4列的和是否大于4，在数据框的第5列中记录"greater_than_4"或者"lesser_than_4"。下面是其中一种方式。请编写代码尝试提高模拟的计算效率？可以在作业答案中尝试多种方式，你的最小计算时间是多少？
+```{r}
+df2 = df
+system.time({
+  output = NULL
+  for (i in 1:nrow(df)) { 
+    if ((df[i, 'col1'] + df[i, 'col2'] + df[i, 'col3'] + df[i, 'col4']) > 4) { 
+      output <- c(output, "greater_than_4")
+    } else {
+      output <- c(output,"lesser_than_4")
+    }
+  }
+  df2$output = output
+})
+
+```
+优化方法：
+
+-新建一个储存output数据的向量，长度与df的长度相同，内容为空
+
+-将output向量与原df数据框使用cbind命令合并
+
+-在代码中直接使用'greater/lesser'对合并后的数据框内的元素进行重新赋值
+
+-在df的数据量为5e4时，可以看到时间缩短接近1s，性能得到10%以上的提升
+          
+```{r}
+otpt=rep('',nrow(df))
+dfbind=cbind(df,otpt)
+system.time({
+  for (i in 1:nrow(df)) { 
+    if ((df[i, 'col1'] + df[i, 'col2'] + df[i, 'col3'] + df[i, 'col4']) > 4) { 
+      dfbind[i,"output"]=c('greater_than_4')
+    } else {
+      dfbind[i,"output"]=c("lesser_than_4")
+    }
+  }
+})
+```

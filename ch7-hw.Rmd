@@ -1,0 +1,154 @@
+---
+title: "第七章-作业"
+author: "朱子灏 2019193014"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## 练习题
+
+1. 已知两个向量`x`和`y`分别为，
+```{r}
+x = c(5,12,13,3,6,0,1,15,16,8,88)
+y = c(4,2,3,23,6,10,11,12,6,3,2)
+```
+我们使用两种方式计算计算相关性：
+
+
+- Pearson相关性，即我们在《概率论与数理统计》学习的相关系数，其公式为
+
+$$
+    r = \frac{\sum_{i=1}^n (x_i-\bar{x})(y_i-\bar{y})}
+    {\sqrt{\sum_{i=1}^n(x_i-\bar{x})^2}\sqrt{\sum_{i=1}^n(y_i-\bar{y})^2}}
+$$
+    请同学们自己编写函数计算Pearson相关系数(注：不能使用函数`cor()`)。
+```{r}
+Pearson=function(x,y)
+{
+  if(length(x)!=length(y))
+    return(FALSE)
+  
+  else if(length(x)==length(y)){
+    r_up=0
+    r_down1=0
+    r_down2=0
+    for(i in 1:length(x)){
+      r_up=r_up+(x[i]-mean(x))*(y[i]-mean(y))
+      r_down1=r_down1+(x[i]-mean(x))^2
+      r_down2=r_down2+(y[i]-mean(y))^2
+    }
+    
+    r=r_up/(sqrt(r_down1)*sqrt(r_down2))
+    
+    return(r)
+  }
+}
+Pearson(x,y)
+```
+- 定义另一种相关系数。如果`x`和`y`是时间序列，比如他们是每小时收集的气温和气压测量值。如果`x`和`y`相关性较高，那么他们会经常同时上升或者下降。因此，我们定义相关性为：$y[i+2]-y[i]$与$x[i+2]-x[i]$符号相同时的次数占总数的比例。请同学们自己编写函数计算该相关系数。
+```{r}
+#if-else赋值时，若最后的值为空值，必须手动让最后的值=NA，要不然向量长度会-1
+related=function(x,y)
+{
+  x1=c()
+  y1=c()
+  j=c()
+  for(i in 1:(length(x)-2)){
+    x1[i]=x[i+2]-x[i]
+    y1[i]=y[i+2]-y[i]
+    if(x1[i]*y1[i]>=0)
+      j[i]=TRUE
+    else
+      j[i]=NA
+  }
+  judge=na.omit(j)
+  num=length(judge)/length(j)
+  return(num)
+}
+related(x,y)
+```
+
+2. 假设有$n$个独立事件，其中第$i$个事件的发生概率为$P_i$。求恰好有一个事件发生的概率。
+
+首先假设$n=3$，事件记作A,B,C；那么P(有一件事情发生)为P(A发生而BC没有发生)，P(B发生而AC没有发生)，P(C发生而AB没有发生)的和。很明显P(A发生而BC没有发生)=$P_A(1-P_B)(1-P_c)$，以次类推，对于一般情形，我们有
+$$
+\sum_{i=1}^n p_i(1-p_1)\ldots(1-p_{i-1})(1-p_{i+1})\ldots(1-p_{n}).
+$$
+请同学们自定义函数计算恰好有一个事件发生的概率。要求该函数可以处理$n$等于任意值的情况。
+
+```{r}
+probability=function(p)
+{
+  sum=0
+  for(i in 1:length(p)){
+    prob=1
+    for(k in 1:length(p)){
+      prob=prob*(1-p[k])
+    }
+  sum=sum+prob*p[i]/(1-p[i]) 
+  }
+  return(sum)
+}
+```
+
+
+- 当每个事件发生的概率为`p=c(0.3,0.3,0.4)`，使用该函数计算恰好有一个事件发生的概率；
+```{r}
+p=c(0.3,0.3,0.4)
+probability(p)
+```
+
+- 当每个事件发生的概率为`p=rep(0.1,10)`，使用该函数计算恰好有一个事件发生的概率；
+```{r}
+p=rep(0.1,10)
+probability(p)
+```
+
+
+3. 请同学们自定义函数完成如下任务。已知一个矩阵，找出矩阵中最大元素值对应的位置(最大的元素值可能有多个)。例如，
+$$
+\left[\begin{matrix}2&10\\10&1 \\ \end{matrix}\right]
+$$
+该矩阵的最大元素值的位置为(1,2)和(2,1)。
+
+- 在自定义函数中，可以使用R自带函数`max()`。
+```{r}
+mat=matrix(c(2,10,10,1),nrow=2,ncol=2)
+findmax=function(mat){
+  which(mat==max(mat),arr.ind=T)
+}
+findmax(mat)
+```
+    
+- 在自定义函数中，**不可以**使用R自带函数`max()`或者`min()`。
+```{r}
+mat=matrix(c(2,10,10,1),2,2)
+findmax2=function(mat)
+{
+  mat2vec=sort(mat)
+  maxnum=mat2vec[length(mat2vec)]
+  which(mat==maxnum,arr.ind=T)
+}
+findmax2(mat)
+```
+- 使用两个自定义函数分别计算下面矩阵`A`和`B`的最大元素值对应的位置。
+```{r}
+set.seed(1)
+A = matrix(sample(1:12), 3, 4)
+B = matrix(sample(1:12), 4, 3)
+B[3,3] = 12
+```
+    
+```{r}
+findmax(A)
+findmax(B)
+
+findmax2(A)
+findmax2(B)
+```
+  
+
+

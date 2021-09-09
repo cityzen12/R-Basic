@@ -1,0 +1,91 @@
+---
+title: "第十一章-作业"
+author: "你的名字(你的学号)"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## 练习题
+
+1. 考虑线性回归模型，
+$$
+\mathbf{y}=\mathbf{X}\boldsymbol{\beta}+\boldsymbol{\epsilon}
+$$
+其中，$\mathbf{X}$为$n\times p$的系数矩阵，$\mathbf{y}$为$n\times 1$的因变量向量，$\boldsymbol{\beta}$为$p\times 1$的向量，$\boldsymbol{\epsilon}$为$n\times 1$的残差向量。
+
+我们可以通过最小化损失函数计算得到$\boldsymbol{\beta}$的估计值。
+$$
+\ell = \frac{1}{2n}(\mathbf{y}-\mathbf{X}\boldsymbol{\beta})^\top(\mathbf{y}-\mathbf{X}\boldsymbol{\beta})
+$$
+
+最小化损失函数的方法之一是梯度下降法。在线性回归模型中，梯度下降法可以写成如下形式，
+$$
+\boldsymbol{\beta}_{s+1}=\boldsymbol{\beta}_{s}-\alpha \left(\frac{1}{n} \mathbf{X}^\top(\mathbf{X}\boldsymbol{\beta}-\mathbf{y})\right )
+$$
+
+下面是同学A写的代码，该代码的目的是，实现梯度下降法，最终得到线性回归模型的系数估计值。
+
+```{r}
+loss_fun = function(beta, x, y){
+    mean((x%*%as.numeric(beta) - y))
+}
+
+grad_fun = function(x, y, beta){
+  x * (x%*%beta - y) / n
+}
+```
+
+
+```{r}
+gd_lm = function(X, Y, beta_est = c(0, 0, 0), lr = 0.01,
+                epochs = 100, epsilon=1e-8){
+  n = length(Y)
+  
+  beta_old = beta_est
+  
+  loss_vec = rep(NA, epochs)
+  beta_mat = matrix(NA, nrow=epochs, ncol=ncol(X))
+  
+  for (i in 1:epochs) {
+    grad = grad_fun(X, Y, beta_est)
+    beta_est = beta_est + lr * grad
+    loss = loss_fun(beta, X, Y)
+    loss_vec[i] = loss
+    beta_mat[i, ] = beta_est
+    
+    if((i %% floor(epochs/10) == 0)|(i==epochs)){
+      cat("Epoch:", i, ";","loss: ", loss, "\n")
+    }
+    
+    diff = sum((beta_est - beta_old)^2)  
+    if (diff < epsilon){
+      cat("Epoch:", i, ";","loss: ", loss, "\n")
+      break
+    }
+
+  }
+  
+  list(beta_est = beta_est, loss_vec=loss_vec[1:i], 
+       beta_mat=beta_mat[1:i, ], epochs=i)
+}
+```
+
+- 我们模拟产生了一个数据。自变量矩阵的维度为$100 \times 3$，因变量的维度为$100 \times 1$。自变量系数为$c(1,1,1)$。
+```{r}
+set.seed(123)
+n = 100
+p = 3
+x = matrix(rnorm(n*p), n, p)
+y = x %*% c(1,1,1) + rnorm(n)
+lm(y~x-1)
+```
+
+- 如果函数`gd_fit()`正常运行，得到的结果应该和函数`lm()`的结果相似。请使用学过的调试方法找出同学A的代码的错误，得到正确的系数估计值。
+
+```{r error=T}
+gd_fit = gd_lm(x, y, epochs = 1000)
+gd_fit$beta_est
+```

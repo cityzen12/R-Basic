@@ -1,0 +1,220 @@
+---
+title: "第五章-作业"
+author: "朱子灏-2019193014"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+## 练习题
+
+1. 下面的代码中，我们使用函数`read.csv()`读入数据`College.csv`。**注意使用函数`read.csv()`时数据的路径**。
+```{r}
+college = read.csv("D:/学习/大二上/R语言/第五章作业/College.csv", stringsAsFactors = F)
+```
+    - 查看`college`的数据结构类型。
+```{r}
+class(college)
+```
+    
+    - 更改数据`college`第一列的名称为`University`。
+```{r}
+x=colnames(college)
+x[1]='University'
+names(college)=x
+```
+    
+    - 查看数据`college`的列数和行数。
+```{r}
+ncol(college)
+nrow(college)
+```
+    
+    - 去除所有包含`NA`的观测点。
+```{r}
+college=college[complete.cases(college),]
+```
+    
+    - 查看数据`college`的列`Private`的数据类型，把`Private`的数据类型更改为因子型。
+```{r}
+class(college$Private)
+college$Private=factor(college$Private)
+```
+    
+    - 提取`Enroll`大于500的子数据框。(本小题及之后的题中，提取数据框之后请赋值给另一个变量，不要改变数据`college`)
+```{r}
+Enroll=college[college$Enroll>500,]
+```
+    
+    - 提取`Enroll`大于500且`Accept`小于2000的子数据框。
+```{r}
+Accept=college[college$Accept<2000,]
+Enroll_Accept=merge(Enroll,Accept)
+```
+    
+    - 提取`Private`为`Yes`的子数据框。
+```{r}
+Private_Yes=college[college$Private=='Yes',]
+```
+    
+    - 提取子数据框，该数据框值包含列`Apps`, `Top10perc`和`P.Undergrad `。
+```{r}
+DF3=college[,c(1,3,6,9)]
+```
+    
+    - 提取子数据框，该数据框包含`college`的所有偶数行，奇数列。
+```{r}
+columns=ncol(college)
+rows=nrow(college)
+columns=ncol(college)
+even_rows=c()
+odd_columns=c()
+for(r in 1:rows){
+  if(r%%2==0)
+    even_rows[r]=r
+}
+for(c in 1:columns){
+  if(c%%2!=0)
+    odd_columns[c]=c
+}
+er_a=na.omit(even_rows)
+oc_a=na.omit(odd_columns)
+odd_even=college[er_a,oc_a]
+```
+    - 计算college数据框除了`University`和`Private`之外的所有列的平均值和中位数。请使用函数`apply()`，`lapply()`和`sapply`分别实现。
+```{r}
+college_mean_apply=apply(college[,3:10],2,mean,na.rm=T)
+college_mean_lapply=lapply(college[,3:10],mean)
+college_mean_sapply=sapply(college[,3:10], mean)
+```
+    
+    
+2. 下面的代码中，我们使用函数`read.csv()`读入数据`College2.csv`。**注意使用函数`read.csv()`时数据的路径**。
+```{r}
+college2 = read.csv("D:/学习/大二上/R语言/第五章作业/College2.csv", stringsAsFactors = F)
+```
+
+合并`college`和`college2`，并查看数据合并之后的维度。
+```{r}
+m=merge(college,college2)
+dim(m)
+```
+
+3. 分析工资数据。在该数据中，我们关心最好的和最优前途的员工有多少？一种判别员工是否具有杰出才能的方法是查看实际工资与该地区该职位的普遍工资的比率。如果这个比率高于远高于1，则可以认为员工是高水平人才。下面，我们先使用函数`read.csv()`读入数据。
+```{r}
+all2006 = read.csv("D:/学习/大二上/R语言/第五章作业/2006.txt", as.is=TRUE, header=TRUE)
+```
+    - 下面的代码中，我们对数据做了预处理。可能大部分同学不知道下面预处理的方法。感兴趣的同学可以通过查阅帮助文档，观测数据处理前和处理后的不同，推测下面预处理代码的作用。(请使用文字回答该问题，为了强调你的答案，请把你的回答变为斜体。)
+    
+*使用gsub函数，将all2006数据框中的Wage_Offered_From和Prevailing_Wage_Amount两列的数据更改为dbl的数据类型，并且将元素中的‘$’符号用空格代替了*
+    
+```{r}
+all2006 <- within(all2006, {
+  Wage_Offered_From <- as.numeric(gsub("\\$","", Wage_Offered_From))
+  Prevailing_Wage_Amount <- as.numeric(gsub("\\$","", Prevailing_Wage_Amount))
+})
+```
+    - 大家运行上面代码时,可能会看到一些警告，这是因为在运行上面代码过程中出现了NA(有的同学可能会发现警告是乱码，这可能与文档的编码或者语言的选择有关)。请大家查看上面的结果中，哪些列有NA，各出现了多少个NA，以及为什么会出现NA？(同样的，请把你的答案变为斜体。)
+    
+
+    - 从数据中去除包含NA的观测点。
+```{r}
+all2006=all2006[complete.cases(all2006),]
+```
+
+    - 提取子数据框(提取之后，子数据框还是存在变量`all2006`中)，提取的要求是，`Wage_Per`为`Year`，`Wage_Offered_From`大于25000，`Prevailing_Wage_Amount`大于300。
+```{r}
+all2006$Wage_Per=factor(all2006$Wage_Per)
+all2006_WP=all2006[all2006$Wage_Per=='Year',]
+all2006_WOF=all2006_WP[all2006_WP$Wage_Offered_From>25000,]
+all2006_PWA=all2006_WOF[all2006_WOF$Prevailing_Wage_Amount>300,]
+```
+    
+    - 计算实际工资(Wage_Offered_From)与该地区该职位的普遍工资(Prevailing_Wage_Amount)的比率。
+    
+```{r}
+ratio=c()
+for(r in 1:nrow(all2006)){
+  ratio[r]=all2006[r,15]/all2006[r,19]
+}
+```
+
+    - 计算实际工资与该地区该职位的普遍工资的比率的中位数。
+```{r}
+mid=median(ratio)
+mid
+```
+    - 定义实际工资与该地区该职位的普遍工资的比率大于其2倍中位数的员工为杰出人才，计算杰出人才的比例。
+```{r}
+find=c()
+for(r in 1:nrow(all2006)){
+  ratio[r]=all2006[r,15]/all2006[r,19]
+  if(ratio[r]/mid>2)
+    find[r]=TRUE
+  else
+    find[r]=NA
+}
+find1=na.omit(find)
+genius=length(find1)
+genius_ratio=genius/nrow(all2006)
+genius_ratio
+```
+    
+    - 现在，我们关注3种职业，通过如下方法分别得到他们的子数据集。计算这3种职业中杰出人才的比例。
+```{r}
+se2006 <- subset(all2006, grepl("Software Engineer", Prevailing_Wage_Job_Title))
+prg2006 <- subset(all2006, grepl("Programmer", Prevailing_Wage_Job_Title))
+ee2006 <- subset(all2006, grepl("Electronics Engineer", Prevailing_Wage_Job_Title))
+```
+```{r}
+find=c()
+for(r in 1:nrow(se2006)){
+  ratio[r]=se2006[r,15]/se2006[r,19]
+  if(ratio[r]/mid>2)
+    find[r]=TRUE
+  else
+    find[r]=NA
+}
+find1=na.omit(find)
+genius=length(find1)
+genius_ratio_se=genius/nrow(se2006)
+genius_ratio_se
+```
+```{r}
+find=c()
+for(r in 1:nrow(prg2006)){
+  ratio[r]=prg2006[r,15]/prg2006[r,19]
+  if(ratio[r]/mid>2)
+    find[r]=TRUE
+  else
+    find[r]=NA
+}
+find1=na.omit(find)
+genius=length(find1)
+genius_ratio_prg=genius/nrow(prg2006)
+genius_ratio_prg
+```
+```{r}
+find=c()
+for(r in 1:nrow(ee2006)){
+  ratio[r]=ee2006[r,15]/ee2006[r,19]
+  if(ratio[r]/mid>2)
+    find[r]=TRUE
+  else
+    find[r]=NA
+}
+find1=na.omit(find)
+genius=length(find1)
+genius_ratio_ee=genius/nrow(ee2006)
+genius_ratio_ee
+```
+
+
+
+
+
+
+

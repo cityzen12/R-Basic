@@ -1,0 +1,288 @@
+---
+title: "第六章-作业"
+author: "朱子灏(2019193014)"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## 练习题
+1. 自定义两个函数，`tmpFn1`和`tmpFn2`，这两个函数的参数都是一个向量`xVec`，$\mbox{xVec}=(x_1,x_2,\ldots,x_n)$。
+
+- `tmpFn1(xVec)`返回的结果为向量$(x_1,x_2^2,\ldots,x_n^n)$；
+- `tmpFn2(xVec)`返回的结果为向量$(x_1,x_2^2/2,\ldots,x_n^n/n)$。
+
+```{r}
+xVec = c(3,2,1,4,5)
+tmpFn1=function(xVec){
+   result=0
+   for(l in 1:length(xVec)){
+      result=result+xVec[l]^l
+   }
+   return(result)
+}
+tmpFn1(xVec)
+
+tmpFn2=function(xVec){
+   result=0
+   for(l in 1:length(xVec)){
+      result=result+xVec[l]^l/l
+   }
+   return(result)
+}
+tmpFn2(xVec)
+```
+
+
+2. 自定义函数，`tmpFn3`,该函数有两个参数，第一个参数`x`为一个数字，第二参数`n`为一个正整数，`tmpFn3(x, n)`的返回值为
+$$
+1+\frac{x}{1}+\frac{x^2}{2}+\frac{x^3}{3}+\cdots+\frac{x^n}{n}
+$$
+```{r}
+x = 2; n=10
+tmpFn3=function(x,n){
+   result=1
+   for(n in 1:n){
+      result=result+x^n/n
+   }
+   return(result)
+}
+tmpFn3(2,10)
+```
+
+3. 自定义函数`tmpFn(xVec)`，参数`xVec`为一个向量$\mbox{xVec}=(x_1,x_2,\ldots,x_n)$，函数`tempFn(xVec)`的返回值为一个移动平均值：
+ $$\frac{x_1+x_2+x_3}{3},\frac{x_2+x_3+x_4}{3},\ldots,\frac{x_{n-2}+x_{n-1}+x_n}{3}.$$
+ 
+   并尝试运行`tmpFn(c(1:5,6:1))`。
+```{r}
+xVec3=c(1:5,6:1)
+tmpFn4=function(xVec3){
+   if(length(xVec3)<3){
+      return(FALSE)
+   }
+   else if(length(xVec3)>=3){
+      op=c()
+      for(i in 1:length(xVec3)-2){
+         op[i]=((xVec3[i])+xVec3[i+1]+xVec3[i+2])/3
+      }
+      return(op)
+   }
+}
+tmpFn4(xVec3)
+```
+ 
+ 
+ 4. 考虑函数
+ $$
+\begin{equation}
+f(x)=\left\{
+\begin{array}{rcl}
+x^2+2x+3 & & {x<0}\\
+x+3 & & {0 \leq x < 2}\\
+x^2+4x-7 & & {2 \leq x}\\
+\end{array} \right.
+\end{equation}
+ $$
+ 自定义函数`tmpFn()`，其参数为一个向量`xVec`。函数`tmpFn()`的返回值是一个向量，为向量`xVec`的每一个元素代入$f(x)$的结果。
+ 尝试运行`tmpFn(c(-3, 1, 4))`。
+```{r}
+xVec4=c(-3,1,4)
+tmpFn5=function(xVec4){
+   for(l in 1:length(xVec4)){
+      if(xVec4[l]<0){
+         fx=xVec4[l]^2+2*xVec4[l]+3
+         print(fx)
+      }
+      else if(xVec4[l]>=0&xVec4[l]<2){
+         fx=xVec4[l]+3
+         print(fx)
+      }
+      else if(xVec4[l]>=2){
+         fx=xVec4[l]^2+4*xVec4[l]-7
+         print(fx)
+      }
+   }
+}
+tmpFn5(xVec4)
+```
+ 
+ 
+ 5. 自定义一个函数，该函数的参数是一个矩阵；在函数内部，把参数矩阵的所有奇数加倍，然后返回变换后的矩阵。例如，输入矩阵为
+```{r}
+x = matrix(c(1,5,-2,1,2,-1,3,6,-3), 3, 3)
+x
+```
+变换为
+```{r}
+x = matrix(c(2,10,-2,2,2,-2,6,6,-6), 3, 3)
+x
+```
+
+```{r}
+x = matrix(c(1,5,-2,1,2,-1,3,6,-3), 3, 3)
+tmpFn6=function(x){
+   cols=ncol(x)
+   rows=nrow(x)
+   for(r in 1:rows){
+      for(c in 1:cols){
+         if(x[r,c]%%2!=0)
+            x[r,c]=x[r,c]*2
+      }
+   }
+   return(x)
+}
+tmpFn6(x)
+```
+
+
+ 6. 自定义一个函数，该函数有两个参数,`n`和`k`，``n`为正整数，`k`为实数。函数的返回值为一个$n\times n$的矩阵。尝试运行`generate_mat(5, 0.4)`。
+ 
+ $$
+ \left[\begin{matrix}
+ k&1&0&0&\cdots&0&0\\
+ 1&k&1&0&\cdots&0&0\\
+ 0&1&k&1&\cdots&0&0\\
+ 0&0&1&k&\cdots&0&0\\
+\cdots &\cdots&\cdots&\cdots&\cdots&\cdots&\cdots\\
+0&0&0&0&\cdots&k&1\\
+0&0&0&0&\cdots&1&k\\
+ \end{matrix}\right]
+ $$
+ 
+```{r}
+generate_mat=function(n,k){
+   m=diag(k,n,n)
+   m[2,1]=1
+   m[n-1,n]=1
+   for(i in 2:n-1){
+      m[i-1,i]=1
+      m[i+1,i]=1
+   }
+   return(m)
+}
+generate_mat(5, 0.4)
+```
+ 
+7. 如果$\alpha$表示一个角度($\alpha$为正的实数)，
+
+- 如果$0\leq\alpha<90$，那么该角度在第一象限；
+- 如果$90\leq\alpha<180$，那么该角度在第二象限；
+- 如果$180\leq\alpha<270$，那么该角度在第三象限；
+- 如果$270\leq\alpha<360$，那么该角度在第四象限；
+- 如果$360\leq\alpha<450$，那么该角度在第一象限；
+- 等等。。。
+
+自定义一个函数，该函数的输入值为`alpha`表示角度，输出为该角度所处象限。尝试`alpha=50, 200, 420`。
+```{r}
+tmpFn7=function(alpha){
+   if(alpha<360){
+      if(alpha<90&alpha>=0){
+         return('dim1')
+      }
+      else if(alpha>=90&alpha<180){
+         return('dim2')
+      }
+      else if(alpha<270&alpha>=180){
+         return('dim3')
+      }
+      else if(alpha>=270&alpha<360){
+         return('dim4')
+      }
+   }
+   else if(alpha>=360){
+      alpha1=alpha-floor(alpha/360)*360
+      if(alpha1<90&alpha1>=0){
+         return('dim1')
+      }
+      else if(alpha1>=90&alpha1<180){
+         return('dim2')
+      }
+      else if(alpha1<270&alpha1>=180){
+         return('dim3')
+      }
+      else if(alpha1>=270&alpha1<360){
+         return('dim4')
+      }
+   }
+}
+tmpFn7(50)
+tmpFn7(200)
+tmpFn7(420)
+```
+
+
+8. 向量$x_1,\ldots,x_n$的$k$滞后样本自相关定义为：
+$$
+r_k=\frac{\sum_{i=k+1}^n(x_i-\bar{x})(x_{i-k}-\bar{x})}{\sum_{i=1}^n(x_i-\bar{x})^2}
+$$
+如果$k=1$，那么
+$$
+r_1=\frac{\sum_{i=2}^n(x_i-\bar{x})(x_{i-1}-\bar{x})}{\sum_{i=1}^n(x_i-\bar{x})^2}=\frac{(x_2-\bar{x})(x_1-\bar{x})+\cdots+(x_n-\bar{x})(x_{n-1}-\bar{x})}{\sum_{i=1}^n(x_i-\bar{x})^2}
+$$
+
+- 自定义一个函数，该函数的参数为一个向量`xVec`，函数的返回值为$r_1$和$r_2$。
+```{r}
+xVec8_1=seq(2,56,3)
+tmpFn8_1=function(xVec8_1){
+   xm=mean(xVec8_1)
+   
+   d_down=0
+   
+   d_up1=0
+   for(i in 2:length(xVec8_1)){
+      d_up1=d_up1+(xVec8_1[i]-xm)*(xVec8_1[i-1]-xm)
+   }
+   for(i in 1:length(xVec8_1)){
+      d_down=d_down+(xVec8_1[i]-xm)^2
+   }
+   r1=d_up1/d_down
+   
+   d_up2=0
+   for(i in 3:length(xVec8_1)){
+      d_up2=d_up2+(xVec8_1[i]-xm)*(xVec8_1[i-2]-xm)
+   }
+   r2=d_up2/d_down
+   
+   return(c(r1,r2))
+}
+tmpFn8_1(xVec8_1)
+```
+
+- 自定义一个函数，该函数的参数为向量`xVec`和整数`k`($1\leq k<n$，$n$为`xVec`的长度。)，函数的返回值为一个向量$r_0=1,r_1,\ldots,r_k$。
+ 
+```{r}
+#记得for循环中 如269行代码所示，多项式要用括号括起来
+xVec8_1=seq(2,56,3)
+tmpFn8_2=function(xVec8_1,k){
+   xm=mean(xVec8_1)
+   d_down=0
+   
+   for(i in 1:length(xVec8_1)){
+      d_down=d_down+(xVec8_1[i]-xm)^2
+   }
+   
+   d_up=c()
+   for(k in 1:k){
+      d_up[k]=0
+      for(i in (k+1):length(xVec8_1)){
+         d_up[k]=d_up[k]+(xVec8_1[i]-xm)*(xVec8_1[i-k]-xm)
+      }
+   }
+   
+   r=c()
+   for(k in 1:k){
+      r[k]=d_up[k]/d_down
+   }
+   
+   r0=c(1)
+   result=c(r0,r)
+   
+   return(result)
+}
+tmpFn8_2(xVec8_1,3)
+```
+ 
+ 
+ 
